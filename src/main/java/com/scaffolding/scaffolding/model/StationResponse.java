@@ -1,0 +1,4 @@
+package com.scaffolding.scaffolding.model;
+
+public class StationResponse {
+}
