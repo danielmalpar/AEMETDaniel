@@ -1,4 +1,4 @@
-package com.scaffolding.scaffolding;
+package com.scaffolding.scaffolding.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -7,5 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class ScaffoldingApplicationTest {
 
     @Test
-    void contextLoads(){}
+    void contextLoads(){
+
+    }
 }
