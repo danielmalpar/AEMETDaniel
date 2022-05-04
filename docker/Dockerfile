@@ -21,7 +21,7 @@ COPY src src
 RUN mvn package -Dmaven.test.skip=true
 
 FROM openjdk:11-jdk
-COPY --from=0 /build/target/scaffolding.scaffolding-0.0.1-SNAPSHOT.jar /app/target/scaffolding.scaffolding-0.0.1-SNAPSHOT.jar
+COPY --from=0 /build/target/scaffolding-0.0.1-SNAPSHOT.jar /app/target/scaffolding-0.0.1-SNAPSHOT.jar
 
 EXPOSE 8085
-ENTRYPOINT [ "java", "-jar", "/app/target/scaffolding.scaffolding-0.0.1-SNAPSHOT.jar", "--server.port=8081" ]
+ENTRYPOINT [ "java", "-jar", "/app/target/scaffolding-0.0.1-SNAPSHOT.jar", "--server.port=8081" ]
