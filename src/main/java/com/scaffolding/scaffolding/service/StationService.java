@@ -60,7 +60,7 @@ public class StationService implements IStationService {
         response2 = client2.newCall(request2).execute();
         String responeDataString2=response2.body().string();
         JSONArray jsonArray = new JSONArray(responeDataString2);
-        ArrayList<Station> ArrayStations= new ArrayList<>();;
+        ArrayList<Station> ArrayStations= new ArrayList<>();
         if (jsonArray.length() > 0) {
             Station station;
             for (int i = 0; i < jsonArray.length(); i++) {//hacemos un for para recorrer el JsonArray y meterle en la station que creamos con los valores de temp
@@ -128,6 +128,112 @@ public class StationService implements IStationService {
             logger.info("el array está vacio");
         }
         return ArrayStations;
+
+    }
+
+    public void AllStations() throws ParseException, IOException {
+        LocalDate dateFifteen= dateNow.minusDays(15);
+        String date2=dateFifteen+"T00%3A00%3A00UTC";
+
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://opendata.aemet.es/opendata/api/valores/climatologicos/diarios/datos/fechaini/"+date2+"/fechafin/"+date+"/todasestaciones?api_key=" + APIKEY)
+                .get()
+                .addHeader("cache-control", "no-cache")
+                .build();
+        Response response;
+
+        response = client.newCall(request).execute();
+        String responeDataString=response.body().string();//pasamos el body del JSON a string para que podamos
+        System.out.println(response.toString());
+
+        JSONObject auxiliarJsonObject= new JSONObject(responeDataString);
+
+        String QueryURL=  auxiliarJsonObject.getString("datos");
+
+
+        OkHttpClient client2 = new OkHttpClient();
+        Request request2 = new Request.Builder()
+                .url(QueryURL)
+                .get()
+                .addHeader("cache-control", "no-cache")
+                .build();
+        System.out.println("me ha hecho la peticion a aemet ");
+        Response response2;
+
+        System.out.println("creo el Response response");
+        response2 = client2.newCall(request2).execute();
+        String responeDataString2=response2.body().string();
+
+        JSONArray jsonArray = new JSONArray(responeDataString2);
+        ArrayList<Station> ArrayStations;
+        if (jsonArray.length() > 0) {
+            Station station;
+            ArrayStations = new ArrayList<>();
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                NumberFormat nf = NumberFormat.getInstance();
+
+                station = new Station();
+
+                JSONObject jsonObjectLine = (JSONObject) jsonArray.get(i);;
+
+
+
+
+                if(jsonObjectLine.has("tmed")&&jsonObjectLine.has("tmax")&&jsonObjectLine.has("tmin")) {
+                    String StationName = jsonObjectLine.getString("nombre");
+                    System.out.println("Estacion de "+StationName);
+                    String StationDate = jsonObjectLine.getString("fecha");
+                    System.out.println("Fecha de "+StationDate);
+                    String dateTmed = jsonObjectLine.getString("tmed");
+                    System.out.println("temperatura media "+dateTmed);
+                    String dateTmax = jsonObjectLine.getString("tmax");
+                    System.out.println("temperatura maxima "+dateTmax);
+                    String dateTmin = jsonObjectLine.getString("tmin");
+                    System.out.println("temperatura minima "+dateTmin);
+
+                    station.setTmed((float) (nf.parse((jsonObjectLine.get("tmed").toString()))).doubleValue());
+                    station.setTmax((float) nf.parse((jsonObjectLine.get("tmax").toString())).doubleValue());
+                    station.setTmin((float) nf.parse((jsonObjectLine.get("tmin").toString())).doubleValue());
+                    ArrayStations.add(station);
+                    Station stationForTemps=new Station();
+
+                    for (i= 0; i < ArrayStations.size(); i++) {
+                        if (ArrayStations.get(i).getTmax() > stationForTemps.getTmax())
+                            stationForTemps=ArrayStations.get(i);
+
+                    }
+                    logger.info("Maximum temperatura = " + stationForTemps.getTmax());
+
+                    for (i= 0; i < ArrayStations.size(); i++) {
+                        if (ArrayStations.get(i).getTmin() < stationForTemps.getTmin())
+                            stationForTemps=ArrayStations.get(i);
+
+                    }
+                    logger.info("Minimum temperatura = " + stationForTemps.getTmin());
+
+                    for (i= 0; i < ArrayStations.size(); i++) {
+                        if (ArrayStations.get(i).getTmed() > stationForTemps.getTmed())
+                            stationForTemps=ArrayStations.get(i);
+                        divide=divide+i;
+                        total=total+ArrayStations.get(i).getTmed();
+
+                    }
+
+                }
+                else{
+                    String StationName = jsonObjectLine.getString("nombre");
+                    String StationDate = jsonObjectLine.getString("fecha");
+                    System.out.println(date);
+                    System.out.println("***********************NO TIENE DATOS  LA ESTACION "+(StationName)+" DEL DIA "+(StationDate)+" ***********************");
+                }
+            }
+
+        } else {
+            System.out.println("el array está vacio");
+        }
 
     }
 

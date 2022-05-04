@@ -23,5 +23,10 @@ public class Controller {
         return stationService.OneStation(estacion);
                         }
 
+    @RequestMapping(value = "/listAllStations", method = RequestMethod.GET)
+    public void AllStation() throws IOException, ParseException {
+        stationService.AllStations();
+    }
+
 
 }
